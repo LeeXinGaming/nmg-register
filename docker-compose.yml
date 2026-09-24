@@ -1,0 +1,32 @@
+services:
+  nmc-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nmc_server_app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - nmc_data:/app/data
+    restart: unless-stopped
+
+  nmc-frontend-dev:
+    image: node:20-alpine
+    container_name: nmc_frontend_dev
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - nmc-backend
+    profiles:
+      - dev
+
+volumes:
+  nmc_data:
